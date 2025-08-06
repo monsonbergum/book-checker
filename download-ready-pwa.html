@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Checker</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Book Checker">
+    <meta name="theme-color" content="#3b82f6">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiBmaWxsPSIjM2I4MmY2Ii8+CjxwYXRoIGQ9Ik02NCA5NmgzMnYzMkg2NFY5NnptMzIgMGgzMnYzMmgtMzJWOTZ6bTMyIDBoMzJ2MzJoLTMyVjk2em0wIDMyaDMydjMyaC0zMnYtMzJ6bS0zMiAwaDMydjMySDk2di0zMnptLTMyIDBoMzJ2MzJINjR2LTMyeiIgZmlsbD0iI2ZmZiIvPgo8L3N2Zz4K">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiQm9vayBDaGVja2VyIiwic2hvcnRfbmFtZSI6IkJvb2tzIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZmZmZmYiLCJ0aGVtZV9jb2xvciI6IiMzYjgyZjYiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCM2FXUjBhRDBpTVRreUlpQm9aV2xuYUhROUlqRTVNaUlpSUhacFpYZENiM2c5SWpBZ01DQXhPVElnTVRreUlpQm1hV3hzUFNKdWIyNWxJaUI0Yld4dWN6MGlhSFIwY0RvdkwzZDNkeTUzTXk1dmNtY3ZNakF3TUM5emRtY2lQZ29nUEhKbFkzUWdkMmxrZEdnOUlqRTVNaUlnYUdWcFoyaDBQU0l4T1RJaUlHWnBiR3c5SWlNelltZ3laall1SXk4K0NpQXdZalI0SWlCbWFXeHNQU0lqWm1abUlpOCtDand2YzNablBnbz0iLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #1e40af;
+            font-size: 2rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 32px;
+            font-size: 0.95rem;
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            width: 20px;
+            height: 20px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus {
+            border-color: #3b82f6;
+        }
+        
+        button {
+            width: 100%;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 24px;
+        }
+        
+        button:hover:not(:disabled) {
+            background: #2563eb;
+        }
+        
+        button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        .result {
+            padding: 24px;
+            border-radius: 12px;
+            border: 2px solid;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+        
+        .result.yes {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+        
+        .result.no {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+        
+        .result-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 16px;
+            display: block;
+        }
+        
+        .result h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .result p {
+            margin: 6px 0;
+            font-size: 1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #6b7280;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .stats {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            margin-top: 16px;
+        }
+        
+        .book-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 1rem;
+        }
+        
+        .book-status {
+            margin-right: 12px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .error {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            color: #dc2626;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .setup-info {
+            background: #fef3c7;
+            border: 2px solid #fbbf24;
+            color: #92400e;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading book database...</p>
+        </div>
+        
+        <div id="setup" style="display: none;">
+            <h1>📚 Book Checker</h1>
+            <div class="setup-info">
+                <h3>Setup Required</h3>
+                <p><strong>Step 1:</strong> Share your Google Sheet publicly</p>
+                <p>• Go to your Google Sheet</p>
+                <p>• Click "Share" → "Anyone with link can view"</p>
+                <p>• Copy the share link</p>
+                <br>
+                <p><strong>Step 2:</strong> Paste the link below and click "Connect"</p>
+            </div>
+            <input type="text" id="sheetUrl" placeholder="Paste your Google Sheets share link here..." style="margin-bottom: 16px;">
+            <button onclick="connectToSheet()">Connect to Google Sheet</button>
+        </div>
+        
+        <div id="app" style="display: none;">
+            <h1>📚 Book Checker</h1>
+            <p class="subtitle">Enter a book title or series to check your collection</p>
+            
+            <div class="search-container">
+                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Enter book title or series name...">
+            </div>
+            
+            <button id="checkButton" onclick="checkBook()">Check Collection</button>
+            
+            <div id="result"></div>
+            
+            <div class="stats">
+                <p>Database contains <span id="bookCount">0</span> book entries</p>
+                <p><button onclick="refreshData()" style="background: #6b7280; padding: 8px 16px; font-size: 0.8rem; margin-top: 8px;">🔄 Refresh Data</button></p>
+            </div>
+        </div>
+        
+        <div id="error" style="display: none;">
+            <h1>📚 Book Checker</h1>
+            <div class="error">
+                <h3>Connection Error</h3>
+                <p id="errorMessage">Unable to load book data.</p>
+                <button onclick="showSetup()" style="background: #dc2626; margin-top: 12px;">Try Different Sheet</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bookDatabase = new Map();
+        let sheetId = null;
+
+        // Check if sheet URL is already saved
+        const savedSheetUrl = localStorage.getItem('bookCheckerSheetUrl');
+        
+        function extractSheetId(url) {
+            const match = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+            return match ? match[1] : null;
+        }
+
+        function showSetup() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('setup').style.display = 'block';
+        }
+
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        async function connectToSheet() {
+            const urlInput = document.getElementById('sheetUrl');
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                alert('Please paste your Google Sheets URL');
+                return;
+            }
+            
+            const extractedSheetId = extractSheetId(url);
+            if (!extractedSheetId) {
+                alert('Invalid Google Sheets URL. Please make sure you copied the full share link.');
+                return;
+            }
+            
+            // Save the URL for future use
+            localStorage.setItem('bookCheckerSheetUrl', url);
+            sheetId = extractedSheetId;
+            
+            // Show loading and try to load data
+            document.getElementById('setup').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            
+            await loadBookData();
+        }
+
+        async function loadBookData() {
+            if (!sheetId) {
+                showSetup();
+                return;
+            }
+            
+            try {
+                // Convert Google Sheets to CSV URL
+                const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+                
+                const response = await fetch(csvUrl);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data from Google Sheets. Make sure the sheet is shared publicly.');
+                }
+                
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const parsedData = Papa.parse(csvText, {
+                    header: true,
+                    dynamicTyping: true,
+                    skipEmptyLines: true
+                });
+                
+                if (parsedData.errors.length > 0) {
+                    console.error('CSV parsing errors:', parsedData.errors);
+                }
+                
+                // Process the data
+                await processBookData(parsedData.data);
+                
+                // Show the app
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError(error.message);
+            }
+        }
+
+        async function processBookData(data) {
+            bookDatabase.clear();
+            
+            data.forEach(row => {
+                const series = row.series;
+                const bookNum = row.number;
+                const bookTitle = row.title;
+                const owned = row.owned === 'Yes';
+                
+                if (!series) return;
+                
+                const identifiers = [];
+                let titleStr = null;
+                
+                if (bookTitle && String(bookTitle).trim()) {
+                    titleStr = String(bookTitle).trim();
+                    identifiers.push(`${series}: ${titleStr}`);
+                    identifiers.push(`${series} ${titleStr}`);
+                    identifiers.push(titleStr);
+                } else if (bookNum) {
+                    identifiers.push(`${series} ${bookNum}`);
+                    identifiers.push(`${series} book ${bookNum}`);
+                    identifiers.push(`${series} #${bookNum}`);
+                }
+                
+                identifiers.push(series);
+                
+                identifiers.forEach(id => {
+                    const key = id.toLowerCase().trim();
+                    if (!bookDatabase.has(key) || owned) {
+                        bookDatabase.set(key, {
+                            owned: owned,
+                            displayName: titleStr ? `${series}: ${titleStr}` : `${series} #${bookNum}`,
+                            series: series,
+                            number: bookNum,
+                            title: titleStr || bookTitle
+                        });
+                    }
+                });
+            });
+            
+            document.getElementById('bookCount').textContent = bookDatabase.size;
+            
+            // Add event listeners
+            const input = document.getElementById('searchInput');
+            const button = document.getElementById('checkButton');
+            
+            input.addEventListener('input', function() {
+                button.disabled = !this.value.trim();
+            });
+            
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && this.value.trim()) {
+                    checkBook();
+                }
+            });
+        }
+
+        async function refreshData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('app').style.display = 'none';
+            await loadBookData();
+        }
+
+        // Fuzzy matching functions
+        function levenshteinDistance(str1, str2) {
+            const matrix = [];
+            for (let i = 0; i <= str2.length; i++) {
+                matrix[i] = [i];
+            }
+            for (let j = 0; j <= str1.length; j++) {
+                matrix[0][j] = j;
+            }
+            for (let i = 1; i <= str2.length; i++) {
+                for (let j = 1; j <= str1.length; j++) {
+                    if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            return matrix[str2.length][str1.length];
+        }
+
+        function similarity(str1, str2) {
+            const longer = str1.length > str2.length ? str1 : str2;
+            const shorter = str1.length > str2.length ? str2 : str1;
+            const editDistance = levenshteinDistance(longer, shorter);
+            return (longer.length - editDistance) / longer.length;
+        }
+
+        function normalizeText(text) {
+            if (typeof text !== 'string') {
+                text = String(text || '');
+            }
+            return text.toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function checkBook() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (!searchTerm) return;
+
+            const normalizedSearch = normalizeText(searchTerm);
+            let matches = [];
+
+            for (const [bookKey, bookInfo] of bookDatabase) {
+                const normalizedBook = normalizeText(bookKey);
+                let score = 0;
+                
+                if (normalizedBook === normalizedSearch) {
+                    score = 1;
+                } else if (normalizedBook.includes(normalizedSearch) || normalizedSearch.includes(normalizedBook)) {
+                    score = 0.9;
+                } else {
+                    const similarity1 = similarity(normalizedSearch, normalizedBook);
+                    const similarity2 = similarity(normalizedSearch, normalizedBook.split(':')[1]?.trim() || normalizedBook);
+                    score = Math.max(similarity1, similarity2);
+                    
+                    const searchWords = normalizedSearch.split(' ');
+                    const bookWords = normalizedBook.split(' ');
+                    let wordMatches = 0;
+                    
+                    for (const searchWord of searchWords) {
+                        for (const bookWord of bookWords) {
+                            if (bookWord.includes(searchWord) || searchWord.includes(bookWord) || 
+                                similarity(searchWord, bookWord) > 0.7) {
+                                wordMatches++;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    const wordScore = wordMatches / Math.max(searchWords.length, bookWords.length);
+                    score = Math.max(score, wordScore);
+                }
+                
+                if (score >= 0.5) {
+                    matches.push({ ...bookInfo, score });
+                }
+            }
+
+            const uniqueMatches = [];
+            const seen = new Set();
+            
+            matches.sort((a, b) => b.score - a.score).forEach(match => {
+                const key = `${match.series}-${match.number || match.title}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    uniqueMatches.push(match);
+                }
+            });
+
+            const resultDiv = document.getElementById('result');
+            
+            if (uniqueMatches.length === 0) {
+                resultDiv.innerHTML = `
+                    <div class="result no">
+                        <svg class="result-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <h2>NOT FOUND</h2>
+                        <p>No books found matching "${searchTerm}"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const ownedBooks = uniqueMatches.filter(m => m.owned);
+            const neededBooks = uniqueMatches.filter(m => !m.owned);
+            
+            let resultHTML = '';
+            
+            if (ownedBooks.length > 0) {
+                resultHTML += `
+                    <div class="result yes" style="margin-bottom: 16px;">
+                        <svg class="result-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <h2>YOU HAVE (${ownedBooks.length})</h2>
+                        ${ownedBooks.map(book => 
+                            `<div class="book-item"><span class="book-status" style="color: #166534;">✓</span><span>${book.displayName}</span></div>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+            
+            if (neededBooks.length > 0) {
+                resultHTML += `
+                    <div class="result no">
+                        <svg class="result-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                        <h2>YOU NEED (${neededBooks.length})</h2>
+                        ${neededBooks.map(book => 
+                            `<div class="book-item"><span class="book-status" style="color: #dc2626;">✗</span><span>${book.displayName}</span></div>`
+                        ).join('')}
+                    </div>
+                `;
+            }
+            
+            resultDiv.innerHTML = resultHTML;
+        }
+
+        // Initialize app
+        window.addEventListener('load', async function() {
+            if (savedSheetUrl) {
+                sheetId = extractSheetId(savedSheetUrl);
+                await loadBookData();
+            } else {
+                showSetup();
+            }
+        });
+    </script>
+</body>
+</html>
